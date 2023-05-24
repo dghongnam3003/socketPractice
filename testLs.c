@@ -52,7 +52,7 @@ void list_files(int client_socket, const char* directory) {
             }
             
             char entry_info[512];
-            snprintf(entry_info, sizeof(entry_info), "%c\t%s\t%s\n", type, name, size);
+            snprintf(entry_info, sizeof(entry_info), "%-24c%-24s%s\n", type, name, size);
             // Format the entry information (type, name, size) as a string
             
             strcat(response, entry_info); // Append the entry information to the response
