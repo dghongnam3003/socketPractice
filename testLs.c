@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 
 void send_message(int client_socket, const char* message) {
-    printf("Sending message to client: %s\n", message);
+    printf("Sending message to client: \n%s\n", message);
     // Send the message to the client socket
     // Implementation specific
 }
