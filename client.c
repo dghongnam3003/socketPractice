@@ -5,7 +5,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <arpa/inet.h>
+#include <arpa/inet.h>  
 
 int main(int argc, char *argv[]) 
 {
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
     int status, valread, client_fd;
     struct sockaddr_in serv_addr;
-    char* hello = "Hello from client";
+    char* hello = "Den gio roi";
     char buffer[1024] = { 0 };
     if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         printf("\n Socket creation error \n");
