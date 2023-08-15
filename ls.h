@@ -4,11 +4,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-void send_message(int client_socket, const char* message) {
-    printf("Sending message to client: \n%s\n", message);
-    // Send the message to the client socket
-    // Implementation specific
-}
+
 
 long get_file_size(const char* path) {
     struct stat st;
@@ -63,10 +59,10 @@ void list_files(int client_socket, const char* directory) {
     send_message(client_socket, response); // Send the response to the client
 }
 
-int main() {
+/*int main() {
     const char* directory = "/home/yong/new";
     // Example usage of list_files function
     list_files(0, directory);
     
     return 0;
-}
+}*/

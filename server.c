@@ -1,16 +1,6 @@
-#include <getopt.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/types.h> 
-#include <sys/socket.h> 
-#include <netinet/in.h> 
-#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
-#include <errno.h>
+#include "cd.h"
+#include "ls.h"
+
 
 #define TRUE 1
 #define FALSE 0
@@ -64,7 +54,7 @@ int main(int argc, char *argv[]) {
     fd_set readfds;
 
 
-    char* hello = "Chuan bi di ve thoi";
+    //char* hello = "Chuan bi di ve thoi";
 
     //initialise all client_socket[] to 0 so not checked 
     for (int i = 0; i < max_clients; i++)  
@@ -142,23 +132,39 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);  
             }
 
-            //inform user of socket number - used in send and receive commands 
-            printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
-            printf("[*] Start file server successfully in 0.0.0.0:%s\n", ip);
+            memset(buffer, 0, sizeof(buffer));
+            if (recv(new_socket, buffer, sizeof(buffer), 0) < 0) {
+                perror("receive failed");
+                exit(EXIT_FAILURE);
+            }
+
+            char *buffer_array[1000];
+            int token = 0;
+            buffer_array[token] = strtok(buffer, "\t\n ");
+            while(buffer_array[token] != NULL && token < 1000) {
+                token++;
+                buffer_array[token] = strtok(NULL, "\t\n ");
+            }
 
 
-            //take client ip
-            char client_ip[INET_ADDRSTRLEN];
-            struct sockaddr_in* addr_in = (struct sockaddr_in*)&address;
-            inet_ntop(AF_INET, &(addr_in->sin_addr), client_ip, INET_ADDRSTRLEN);
-            printf("Client IP address: %s\n", client_ip);
+            char *abs_root;
+            realpath(root, abs_root);
+            chdir(abs_root);
 
+            if (strcmp(buffer_array[0], "cd") == 0) {
+                char* current_directory = (char*)malloc(1024);
+                getcwd(current_directory, sizeof(current_directory));
+                char new_directory[1024];
+                strcpy(new_directory, buffer_array[1]);
 
-            //send message Hello from server
-            valread = read(new_socket, buffer, 1024);
-            printf("%s\n", buffer);
-            send(new_socket, hello, strlen(hello), 0);
-            printf("Hello message sent\n");
+                cd(new_socket, &current_directory, new_directory, root);
+            }
+            else if (strcmp(buffer_array[0],"ls") == 0) {
+                char directory[1024];
+                getcwd(directory, sizeof(directory));
+
+                list_files(new_socket, directory);
+            }
 
             //add new socket to array of sockets 
             for (int i = 0; i < max_clients; i++)  
@@ -199,10 +205,34 @@ int main(int argc, char *argv[]) {
                 {  
                     //set the string terminating NULL byte on the end 
                     //of the data read 
-                    valread = read(sd, buffer, 1024);
-                    printf("%s\n", buffer);
-                    send(sd, hello, strlen(hello), 0);
-                    printf("Hello message sent\n"); 
+                    memset(buffer, 0, sizeof(buffer));
+                    if (recv(sd, buffer, sizeof(buffer), 0) < 0) {
+                        perror("receive failed");
+                        exit(EXIT_FAILURE);
+                    }
+
+                    char *buffer_array[1000];
+                    int token = 0;
+                    buffer_array[token] = strtok(buffer, "\t\n ");
+                    while(buffer_array[token] != NULL && token < 1000) {
+                        token++;
+                        buffer_array[token] = strtok(NULL, "\t\n ");
+                    }
+
+                    if (strcmp(buffer_array[0], "cd") == 0) {
+                        char* current_directory = (char*)malloc(1024);
+                        getcwd(current_directory, sizeof(current_directory));
+                        char new_directory[1024];
+                        strcpy(new_directory, buffer_array[1]);
+
+                        cd(sd, &current_directory, new_directory, root);
+                    }
+                    else if (strcmp(buffer_array[0],"ls")==0) {
+                        char* directory = NULL;
+                        getcwd(directory, sizeof(directory));
+
+                        list_files(sd, directory);
+                    }
                 }
             }
         }
