@@ -64,7 +64,7 @@ void list_files(int client_socket, const char* directory) {
 }
 
 int main() {
-    const char* directory = "/home/yong/new";
+    const char* directory = "/home/dum/new";
     // Example usage of list_files function
     list_files(0, directory);
     

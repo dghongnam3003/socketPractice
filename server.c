@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
   
     // Forcefully attaching socket to the port 8080
     if (setsockopt(server_fd, SOL_SOCKET,
-                   SO_REUSEADDR | SO_REUSEPORT, &option,
+                   SO_REUSEADDR, &option,
                    sizeof(option))) {
         perror("setsockopt");
         exit(EXIT_FAILURE);
@@ -161,7 +161,8 @@ int main(int argc, char *argv[]) {
             }
             else if (strcmp(buffer_array[0],"ls") == 0) {
                 char directory[1024];
-                getcwd(directory, sizeof(directory));
+                strcpy(directory, root);
+                //getcwd(directory, sizeof(directory));
 
                 list_files(new_socket, directory);
             }
